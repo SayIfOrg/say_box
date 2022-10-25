@@ -1,0 +1,65 @@
+version: '3.9'
+
+services:
+  say-wagtail-http:
+    build: './say_wagtail'
+    depends_on:
+      - blog-db
+    networks:
+      - say-if
+    ports:
+      - '8000:8000'
+    restart: always
+    
+  say-wagtail-grpc:
+    build: './say_wagtail'
+    entrypoint: ["python", "manage.py", "grpcserver", "--port", "5061"]
+    depends_on:
+      - blog-db
+    networks:
+      - say-if
+    restart: always
+    
+  blog-db:
+    image: 'postgres:14.4'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=say_wagtail
+      - PGDATA=/var/lib/postgresql/pgdata
+    networks:
+      - say-if
+    restart: always
+  
+  say-telegram-polling:
+    build: './telegram'
+    env_file: ./telegram/.env
+    depends_on:
+      - telegram-db
+    networks:
+      - say-if
+    restart: always
+  
+  say-telegram-grpc:
+    build: './telegram'
+    entrypoint: ["python", "main.py" ,"grpc"]
+    env_file: ./telegram/.env
+    depends_on:
+      - telegram-db
+    networks:
+      - say-if
+    restart: always
+
+  telegram-db:
+    image: 'postgres:14.4'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=say_telegram
+      - PGDATA=/var/lib/postgresql/pgdata
+    networks:
+      - say-if
+    restart: always
+
+networks:
+  say-if:
