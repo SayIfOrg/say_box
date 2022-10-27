@@ -61,5 +61,16 @@ services:
       - say-if
     restart: always
 
+  minio:
+    image: 'bitnami/minio:2022'
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    environment:
+      - MINIO_ROOT_USER=minio-root-user
+      - MINIO_ROOT_PASSWORD=minio-root-password
+    networks:
+      - say-if
+      
 networks:
   say-if:
