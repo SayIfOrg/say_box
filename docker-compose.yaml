@@ -5,6 +5,7 @@ services:
     build: './say_wagtail'
     depends_on:
       - blog-db
+      - minio
     networks:
       - say-if
     ports:
@@ -16,6 +17,7 @@ services:
     entrypoint: ["python", "manage.py", "grpcserver", "--port", "5061"]
     depends_on:
       - blog-db
+      - minio
     networks:
       - say-if
     restart: always
@@ -29,6 +31,10 @@ services:
       - PGDATA=/var/lib/postgresql/pgdata
     networks:
       - say-if
+    ports:
+      - '2345:5432'
+    volumes:
+      - "blog-db:/var/lib/postgresql/data"
     restart: always
   
   say-telegram-polling:
@@ -71,6 +77,9 @@ services:
       - MINIO_ROOT_PASSWORD=minio-root-password
     networks:
       - say-if
-      
+
 networks:
   say-if:
+
+volumes:
+  blog-db:
