@@ -1,77 +1,92 @@
 version: '3.9'
 
 services:
-  say-wagtail-http:
-    build: './say_wagtail'
-    depends_on:
-      - blog-db
-      - minio
+  say-webface:
+    build: '../say_webface'
+    env_file: ./say-webface.env
     networks:
       - say-if
     ports:
-      - '8000:8000'
-    restart: always
-    
-  say-wagtail-grpc:
-    build: './say_wagtail'
-    entrypoint: ["python", "manage.py", "grpcserver", "--port", "5061"]
-    depends_on:
-      - blog-db
-      - minio
-    networks:
-      - say-if
-    restart: always
-    
-  blog-db:
-    image: 'postgres:14.4'
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=say_wagtail
-      - PGDATA=/var/lib/postgresql/pgdata
-    networks:
-      - say-if
-    ports:
-      - '2345:5432'
+      - '30000:3000'
     volumes:
-      - "blog-db:/var/lib/postgresql/data"
-    restart: always
-  
-  say-telegram-polling:
-    build: './telegram'
-    env_file: ./telegram/.env
-    depends_on:
-      - telegram-db
-    networks:
-      - say-if
-    restart: always
-  
-  say-telegram-grpc:
-    build: './telegram'
-    entrypoint: ["python", "main.py" ,"grpc"]
-    env_file: ./telegram/.env
-    depends_on:
-      - telegram-db
-    networks:
-      - say-if
+      - '../say_webface:/project'  # for development
+      - '/project/node_modules/'  # exclude `node_modules` to be binded
     restart: always
 
-  telegram-db:
-    image: 'postgres:14.4'
+  # say-wagtail-http:
+  #   build: './say_wagtail'
+  #   depends_on:
+  #     - blog-db
+  #     - minio
+  #   networks:
+  #     - say-if
+  #   ports:
+  #     - '80000:8000'
+  #   restart: always
+    
+  # say-wagtail-grpc:
+  #   build: './say_wagtail'
+  #   entrypoint: ["python", "manage.py", "grpcserver", "--port", "5061"]
+  #   depends_on:
+  #     - blog-db
+  #     - minio
+  #   networks:
+  #     - say-if
+  #   restart: always
+    
+  blog-db:
+    image: 'postgres:14-bullseye'
+    env_file: ./blog-db.env
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=say_telegram
-      - PGDATA=/var/lib/postgresql/pgdata
+      - PGDATA=${PGDATA_DIRECTORY}
     networks:
       - say-if
+    ports:
+      - '54320:5432'
+    volumes:
+      - "blog-db:${PGDATA_DIRECTORY}"
+    restart: always
+  
+  say-botel-polling:
+    build: '../say_botel'
+    env_file: ./say-botel.env
+    depends_on:
+      - botel-db
+    networks:
+      - say-if
+    volumes:
+      - '../say_botel:/project'  # for development
+      - '../.:/path-to-local-dependency'
+    restart: always
+  
+  # say-botel-grpc:
+  #   build: './say_botel'
+  #   entrypoint: ["python", "main.py" ,"grpc"]
+  #   env_file: ./say_botel/.env
+  #   depends_on:
+  #     - botel-db
+  #   networks:
+  #     - say-if
+  #   restart: always
+
+  botel-db:
+    image: 'postgres:14-bullseye'
+    env_file: ./botel-db.env
+    environment:
+      - PGDATA=${PGDATA_DIRECTORY}
+    networks:
+      - say-if
+    ports:
+      - '54321:5432'
+    volumes:
+      - "botel-db:${PGDATA_DIRECTORY}"
     restart: always
 
   minio:
     image: 'bitnami/minio:2022'
     ports:
-      - '9000:9000'
-      - '9001:9001'
+      - '4500:9000'
+      - '45001:9001'
     environment:
       - MINIO_ROOT_USER=minio-root-user
       - MINIO_ROOT_PASSWORD=minio-root-password
@@ -83,3 +98,4 @@ networks:
 
 volumes:
   blog-db:
+  botel-db:
