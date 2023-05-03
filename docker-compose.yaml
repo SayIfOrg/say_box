@@ -13,16 +13,20 @@ services:
       - '/project/node_modules/'  # exclude `node_modules` to be binded
     restart: always
 
-  # say-wagtail-http:
-  #   build: './say_wagtail'
-  #   depends_on:
-  #     - blog-db
-  #     - minio
-  #   networks:
-  #     - say-if
-  #   ports:
-  #     - '80000:8000'
-  #   restart: always
+  say-wagtail-http:
+    build: '../say_wagtail'
+    env_file: ./say-wagtail.env
+    depends_on:
+      - blog-db
+      - minio
+    networks:
+      - say-if
+    ports:
+      - '40001:8000'
+    volumes:
+    - '../say_wagtail:/project'  # for development
+    - '../.:/path-to-local-dependency'  # local dependency path
+    restart: always
     
   # say-wagtail-grpc:
   #   build: './say_wagtail'
@@ -56,7 +60,7 @@ services:
       - say-if
     volumes:
       - '../say_botel:/project'  # for development
-      - '../.:/path-to-local-dependency'
+      - '../.:/path-to-local-dependency'  # local dependency path
     restart: always
   
   # say-botel-grpc:
