@@ -16,9 +16,6 @@ services:
   say-wagtail-http:
     build: '../say_wagtail'
     env_file: ./say-wagtail.env
-    depends_on:
-      - blog-db
-      - minio
     networks:
       - say-if
     ports:
@@ -31,31 +28,13 @@ services:
   # say-wagtail-grpc:
   #   build: './say_wagtail'
   #   entrypoint: ["python", "manage.py", "grpcserver", "--port", "5061"]
-  #   depends_on:
-  #     - blog-db
-  #     - minio
   #   networks:
   #     - say-if
   #   restart: always
     
-  blog-db:
-    image: 'postgres:14-bullseye'
-    env_file: ./blog-db.env
-    environment:
-      - PGDATA=${PGDATA_DIRECTORY}
-    networks:
-      - say-if
-    ports:
-      - '54320:5432'
-    volumes:
-      - "blog-db:${PGDATA_DIRECTORY}"
-    restart: always
-  
   say-botel-polling:
     build: '../say_botel'
     env_file: ./say-botel.env
-    depends_on:
-      - botel-db
     networks:
       - say-if
     volumes:
@@ -67,39 +46,9 @@ services:
   #   build: './say_botel'
   #   entrypoint: ["python", "main.py" ,"grpc"]
   #   env_file: ./say_botel/.env
-  #   depends_on:
-  #     - botel-db
   #   networks:
   #     - say-if
   #   restart: always
 
-  botel-db:
-    image: 'postgres:14-bullseye'
-    env_file: ./botel-db.env
-    environment:
-      - PGDATA=${PGDATA_DIRECTORY}
-    networks:
-      - say-if
-    ports:
-      - '54321:5432'
-    volumes:
-      - "botel-db:${PGDATA_DIRECTORY}"
-    restart: always
-
-  minio:
-    image: 'bitnami/minio:2022'
-    ports:
-      - '4500:9000'
-      - '45001:9001'
-    environment:
-      - MINIO_ROOT_USER=minio-root-user
-      - MINIO_ROOT_PASSWORD=minio-root-password
-    networks:
-      - say-if
-
 networks:
   say-if:
-
-volumes:
-  blog-db:
-  botel-db:
