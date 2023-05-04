@@ -3,7 +3,7 @@ version: '3.9'
 services:
   say-webface:
     build: '../say_webface'
-    env_file: ./say-webface.env
+    env_file: './say-webface.env'
     networks:
       - say-if
     ports:
@@ -15,14 +15,13 @@ services:
 
   say-wagtail-http:
     build: '../say_wagtail'
-    env_file: ./say-wagtail.env
+    env_file: './say-wagtail.env'
     networks:
       - say-if
     ports:
       - '40001:8000'
     volumes:
     - '../say_wagtail:/project'  # for development
-    - '../.:/path-to-local-dependency'  # local dependency path
     restart: always
     
   # say-wagtail-grpc:
@@ -33,14 +32,13 @@ services:
   #   restart: always
     
   say-botel-polling:
-    build: '../say_botel'
-    env_file: ./say-botel.env
+    build: '../say_telegram_py'
+    env_file: './say-botel.env'
     networks:
       - say-if
     volumes:
       - '../say_botel:/project'  # for development
-      - '../.:/path-to-local-dependency'  # local dependency path
-    restart: always
+    restart: 'always'
   
   # say-botel-grpc:
   #   build: './say_botel'
