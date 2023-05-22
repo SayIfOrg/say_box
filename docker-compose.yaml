@@ -15,6 +15,7 @@ services:
     env_file: './say-wagtail.env'
     networks:
       - say-if
+      - pg-main-db
     ports:
       - '40001:8000'
     restart: always
@@ -49,3 +50,5 @@ services:
 
 networks:
   say-if:
+  pg-main-db:
+    external: true
