@@ -11,7 +11,7 @@ services:
     restart: always
 
   say-wagtail-http:
-    build: '../say_wagtail'
+    image: 'sayiforg/say-wagtail:latest'
     env_file: './say-wagtail.env'
     networks:
       - say-if
