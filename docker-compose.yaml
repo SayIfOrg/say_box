@@ -7,10 +7,7 @@ services:
     networks:
       - say-if
     ports:
-      - '30000:3000'
-    volumes:
-      - '../say_webface:/project'  # for development
-      - '/project/node_modules/'  # exclude `node_modules` to be binded
+      - '30001:3000'
     restart: always
 
   say-wagtail-http:
@@ -18,12 +15,8 @@ services:
     env_file: './say-wagtail.env'
     networks:
       - say-if
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
     ports:
       - '40001:8000'
-    volumes:
-    - '../say_wagtail:/project'  # for development
     restart: always
     
   # say-wagtail-grpc:
@@ -42,8 +35,6 @@ services:
       - say-if
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    volumes:
-      - '../say_botel:/project'  # for development
     restart: 'always'
   
   # say-botel-grpc:
