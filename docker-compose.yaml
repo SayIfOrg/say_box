@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   say-webface:
-    build: '../say_webface'
+    build: 'sayiforg/say-webface:latest'
     env_file: './say-webface.env'
     networks:
       - say-if
@@ -30,12 +30,11 @@ services:
   #   restart: always
     
   say-botel-polling:
-    build: '../say_telegram_py'
+    image: 'sayiforg/say-botel'
     env_file: './say-botel.env'
     networks:
       - say-if
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - pg-main-db
     restart: 'always'
   
   # say-botel-grpc:
@@ -47,8 +46,21 @@ services:
   #   extra_hosts:
   #     - "host.docker.internal:host-gateway"
   #   restart: always
+    
+  say-keeper:
+    image: 'sayiforg/say-keeper'
+    env_file: './say-keeper.env'
+    ports:
+      - '8081:8080'
+    networks:
+      - say-if
+      - pg-main-db
+      - redis
+    restart: 'always'
 
 networks:
   say-if:
   pg-main-db:
+    external: true
+  redis:
     external: true
